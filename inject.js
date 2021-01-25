@@ -1,34 +1,63 @@
 
 var Highlighter = new window.Highlighter({
-	'viewable':true //this way Highlighter.js will exclude/avoid selecting or highlighting hidden/invisible elements
-  });
+	'scroll':true, //Automatically scroll to the underlined element
+	'scrollDuration': 500 //milliseconds
+});
 
 function nextElement() {
+	elemRect = Highlighter.element.getBoundingClientRect();
 	Highlighter.erase();
 	Highlighter.next();
+	while(!((elemRect.width > 0) && (elemRect.height > 0))) {
+		Highlighter.next();
+		elemRect = Highlighter.element.getBoundingClientRect();
+	}
 	Highlighter.underline();
 	window.console.log('Highlighter underlined this element:', Highlighter.element);
 }
 
 window.addEventListener('Highlighter:underlined', function (evt) {
-
 	console.log('This element has been underlined', evt.eventData);
 });
 
+document.body.innerHTML += `
+<div id="mydiv">
+  <div id="mydivheader">Click and drag here to move</div>
+  <button id="nextElementButton">Next</button>
+</div>
+`;
 
+dragElement(document.getElementById("mydiv"));
 
+addcss(`
+#mydiv {
+	position: fixed;
+	top:0;
+	left:0;
+	z-index: 99999000;
+	background-color: #f1f1f1;
+	text-align: center;
+	border: 1px solid #d3d3d3;
+	width: 250px;
+  }
+  
+  #mydivheader {
+	padding: 10px;
+	cursor: move;
+	z-index: 1111111000000;
+	background-color: #2196F3;
+	color: #fff;
+  }
+
+  #nextElementButton {
+	  margin: 10px;
+  }
+`);
 
 (function() {
 	
 	// just place a div at top right
-	var div = document.createElement('button');
-	div.style.position = 'fixed';
-	div.style.top = 0;
-	div.style.right = 0;
-	div.style.zIndex = "100000000000";
-	div.id = "nextElementButton";
-	div.textContent = 'Hello world!';
-	document.body.appendChild(div);
+	
 	
 	document.getElementById("nextElementButton").addEventListener("click", nextElement);
 	
