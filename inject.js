@@ -13,6 +13,7 @@ function nextElement() {
 		elemRect = Highlighter.element.getBoundingClientRect();
 	}
 	Highlighter.underline();
+	document.getElementById("currentXpath").innerHTML = createXPathFromElement(Highlighter.element)
 	window.console.log('Highlighter underlined this element:', Highlighter.element);
 }
 
@@ -24,6 +25,7 @@ document.body.innerHTML += `
 <div id="mydiv">
   <div id="mydivheader">Click and drag here to move</div>
   <button id="nextElementButton">Next</button>
+  <p>xpath: <span id="currentXpath"></span></p>
 </div>
 `;
 
