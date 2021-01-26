@@ -7,6 +7,7 @@ var Highlighter = new window.Highlighter({
 let drf325_previous_element = Highlighter.element
 
 function nextElement() {
+
 	let elemRect = Highlighter.element.getBoundingClientRect();
 	Highlighter.erase();
 	Highlighter.next();
@@ -18,17 +19,22 @@ function nextElement() {
 	drf325_previous_element = Highlighter.element
 	document.getElementById("currentXpath").innerHTML = createXPathFromElement(Highlighter.element)
 	window.console.log('Highlighter underlined this element:', Highlighter.element);
+	
 }
 
 function previousElement() {
+
 	Highlighter.erase();
 	Highlighter.point(drf325_previous_element)
 	Highlighter.underline();
 	document.getElementById("currentXpath").innerHTML = createXPathFromElement(Highlighter.element)
+
 }
 
 window.addEventListener('Highlighter:underlined', function (evt) {
+
 	console.log('This element has been underlined', evt.eventData);
+
 });
 
 document.body.innerHTML += `
@@ -38,7 +44,7 @@ document.body.innerHTML += `
   <button class="drf325-button" id="nonInteractiveElementButton">Not Interactive</button>
   <button class="drf325-button" id="skipButton">Skip</button>
   <button class="drf325-button" id="backButton">Back</button>
-  <p>xpath: <span id="currentXpath"></span></p>
+  <small id="currentXpathHolder">xpath: <span id="currentXpath"></span></small>
 </div>
 `;
 
@@ -50,7 +56,7 @@ addcss(`
 	top:0;
 	left:0;
 	z-index: 99999000;
-	background-color: #f1f1f1;
+	background-color: rgb(241, 241, 241, 0.5);
 	text-align: center;
 	border: 1px solid #d3d3d3;
 	width: 250px;
@@ -60,7 +66,7 @@ addcss(`
 	padding: 10px;
 	cursor: move;
 	z-index: 1111111000000;
-	background-color: #8900e1;
+	background-color: rgb(137, 0, 225, 0.9);
 	color: #fff;
   }
 
@@ -73,13 +79,14 @@ addcss(`
 	border: none;
 	color: white;
 	padding: 15px 15px;
+	margin: 5px;
 	text-align: center;
 	text-decoration: none;
 	display: inline-block;
 	font-size: 16px;
   }
 
-  #currentXpath {
+  #currentXpathHolder {
 	  color: black;
   }
 `);
