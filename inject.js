@@ -4,8 +4,10 @@ var Highlighter = new window.Highlighter({
 	'scrollDuration': 500 //milliseconds
 });
 
+let drf325_previous_element = Highlighter.element
+
 function nextElement() {
-	elemRect = Highlighter.element.getBoundingClientRect();
+	let elemRect = Highlighter.element.getBoundingClientRect();
 	Highlighter.erase();
 	Highlighter.next();
 	while(!((elemRect.width > 0) && (elemRect.height > 0))) {
@@ -13,8 +15,16 @@ function nextElement() {
 		elemRect = Highlighter.element.getBoundingClientRect();
 	}
 	Highlighter.underline();
+	drf325_previous_element = Highlighter.element
 	document.getElementById("currentXpath").innerHTML = createXPathFromElement(Highlighter.element)
 	window.console.log('Highlighter underlined this element:', Highlighter.element);
+}
+
+function previousElement() {
+	Highlighter.erase();
+	Highlighter.point(drf325_previous_element)
+	Highlighter.underline();
+	document.getElementById("currentXpath").innerHTML = createXPathFromElement(Highlighter.element)
 }
 
 window.addEventListener('Highlighter:underlined', function (evt) {
@@ -24,7 +34,10 @@ window.addEventListener('Highlighter:underlined', function (evt) {
 document.body.innerHTML += `
 <div id="mydiv">
   <div id="mydivheader">Click and drag here to move</div>
-  <button id="nextElementButton">Next</button>
+  <button class="drf325-button" id="interactiveElementButton">Interactive</button>
+  <button class="drf325-button" id="nonInteractiveElementButton">Not Interactive</button>
+  <button class="drf325-button" id="skipButton">Skip</button>
+  <button class="drf325-button" id="backButton">Back</button>
   <p>xpath: <span id="currentXpath"></span></p>
 </div>
 `;
@@ -54,6 +67,21 @@ addcss(`
   #nextElementButton {
 	  margin: 10px;
   }
+
+  .drf325-button {
+	background-color: #007c70; /* Green */
+	border: none;
+	color: white;
+	padding: 15px 15px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+  }
+
+  #currentXpath {
+	  color: black;
+  }
 `);
 
 (function() {
@@ -61,7 +89,10 @@ addcss(`
 	// just place a div at top right
 	
 	
-	document.getElementById("nextElementButton").addEventListener("click", nextElement);
+	document.getElementById("interactiveElementButton").addEventListener("click", nextElement);
+	document.getElementById("nonInteractiveElementButton").addEventListener("click", nextElement);
+	document.getElementById("skipButton").addEventListener("click", nextElement);
+	document.getElementById("backButton").addEventListener("click", previousElement);
 	
 
 })();
