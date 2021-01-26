@@ -89,8 +89,8 @@ window.smoothScroll=function(){if(void 0!==document.querySelectorAll&&void 0!==w
 
     if (this.element
       && this.element.style) {
-      this.element.style.transition = 'outline 0.55s linear';
-      this.element.style.outline = '3px inset ' + this.color;
+      this.element.style.transition = 'outline 0.1s linear';
+      this.element.style.outline = '7px inset ' + this.color;
       this.element.style.outlineOffset = '-2px';
       this.onUnderlinedEvent.eventData = {
         'element': this.element
