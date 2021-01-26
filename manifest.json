@@ -1,9 +1,9 @@
 {
-  "name": "Injecta",
+  "name": "UI Research Extension",
   "version": "0.0.1",
   "manifest_version": 2,
-  "description": "Injecting stuff",
-  "homepage_url": "http://danharper.me",
+  "description": "UI Research Extension",
+  "homepage_url": "http://wenogk.com",
   "background": {
     "scripts": [
       "background.js"
