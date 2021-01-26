@@ -47,7 +47,7 @@ addcss(`
 	padding: 10px;
 	cursor: move;
 	z-index: 1111111000000;
-	background-color: #2196F3;
+	background-color: #8900e1;
 	color: #fff;
   }
 
