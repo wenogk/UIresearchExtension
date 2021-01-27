@@ -25,7 +25,12 @@ function nextElement() {
 function previousElement() {
 
 	Highlighter.erase();
-	Highlighter.point(drf325_previous_element)
+	Highlighter.previous()
+	let elemRect = Highlighter.element.getBoundingClientRect();
+	while(!((elemRect.width > 0) && (elemRect.height > 0))) {
+		Highlighter.previous();
+		elemRect = Highlighter.element.getBoundingClientRect();
+	}
 	Highlighter.underline();
 	document.getElementById("currentXpath").innerHTML = createXPathFromElement(Highlighter.element)
 
