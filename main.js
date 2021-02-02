@@ -1,64 +1,50 @@
-
-var Highlighter = new window.Highlighter({
-	'scroll':true, //Automatically scroll to the underlined element
-	'scrollDuration': 500 //milliseconds
-});
-
-let drf325_previous_element = Highlighter.element
-
-function nextElement() {
-
-	let elemRect = Highlighter.element.getBoundingClientRect();
-	Highlighter.erase();
-	Highlighter.next();
-	
-	while(!((elemRect.width > 0) && (elemRect.height > 0)) ) {
-		Highlighter.next();
-		elemRect = Highlighter.element.getBoundingClientRect();
-	}
-	Highlighter.underline();
-	drf325_previous_element = Highlighter.element
-	document.getElementById("currentXpath").innerHTML = createXPathFromElement(Highlighter.element)
-	window.console.log('Highlighter underlined this element:', Highlighter.element);
-	
-}
-
-function previousElement() {
-
-	Highlighter.erase();
-	Highlighter.previous()
-	let elemRect = Highlighter.element.getBoundingClientRect();
-	let counterLoop = 0
-	while(!((elemRect.width > 0) && (elemRect.height > 0)) && (counterLoop < 100)) {
-		Highlighter.previous();
-		elemRect = Highlighter.element.getBoundingClientRect();
-		counterLoop += 1
-	}
-	Highlighter.underline();
-	document.getElementById("currentXpath").innerHTML = createXPathFromElement(Highlighter.element)
-
-}
-
-window.addEventListener('Highlighter:underlined', function (evt) {
-
-	console.log('This element has been underlined', evt.eventData);
-
-});
-
+/* <button class="drf325-button" id="interactiveElementButton">Interactive</button><br/>
+  <button class="drf325-button" id="nonInteractiveElementButton">Not Interactive</button><br/>
+  <button class="drf325-button" id="skipButton">Skip</button><br/>
+  <button class="drf325-button" id="backButton">Back</button><br/> */
 document.body.innerHTML += `
 <div id="mydiv">
   <div id="mydivheader">Click and drag here to move</div>
-  <button class="drf325-button" id="interactiveElementButton">Interactive</button><br/>
-  <button class="drf325-button" id="nonInteractiveElementButton">Not Interactive</button><br/>
-  <button class="drf325-button" id="skipButton">Skip</button><br/>
-  <button class="drf325-button" id="backButton">Back</button><br/>
-  <small id="currentXpathHolder">xpath: <span id="currentXpath"></span></small>
+  <p id="currentXpathHolder">hover xpath: <span id="currentHoverXpath"></span></p><br/>
+  <p id="currentXpathHolder">click xpath: <span id="currentXpath"></span></p>
 </div>
+<div class="inspector-element"></div>
 `;
+
+window.theRoom.configure({
+	inspector: ".inspector-element",
+	blockRedirection: true,
+    click: function (element) {
+      document.getElementById("currentXpath").innerText = createXPathFromElement(element)
+	},
+	excludes: ["#mydiv"]
+  })
+
+  // start inspection
+  window.theRoom.start()
+
+  // dynamically bind event
+  window.theRoom.on('mouseover', function (element) {
+	document.getElementById("currentHoverXpath").innerText = createXPathFromElement(element)
+	
+    console.log('the element is hovered', element)
+  })
+
+
+
 
 dragElement(document.getElementById("mydiv"));
 
 addcss(`
+.inspector-element {
+	position: absolute;
+	pointer-events: none;
+	border: 4px solid rgb(137, 0, 225);
+	transition: all 400ms;
+	background-color: rgba(180, 187, 105, 0.2);
+	z-index: 999999999999;
+  }
+
 #mydiv {
 	position: fixed;
 	top:0;
@@ -98,20 +84,13 @@ addcss(`
 	  color: black;
 	  word-wrap: break-word;
   }
-  #xpathText {
-	
-  }
+  
+  
 `);
 
 (function() {
 	
 	// just place a div at top right
-	
-	
-	document.getElementById("interactiveElementButton").addEventListener("click", nextElement);
-	document.getElementById("nonInteractiveElementButton").addEventListener("click", nextElement);
-	document.getElementById("skipButton").addEventListener("click", nextElement);
-	document.getElementById("backButton").addEventListener("click", previousElement);
 	
 
 })();
