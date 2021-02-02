@@ -11,7 +11,8 @@ function nextElement() {
 	let elemRect = Highlighter.element.getBoundingClientRect();
 	Highlighter.erase();
 	Highlighter.next();
-	while(!((elemRect.width > 0) && (elemRect.height > 0))) {
+	
+	while(!((elemRect.width > 0) && (elemRect.height > 0)) ) {
 		Highlighter.next();
 		elemRect = Highlighter.element.getBoundingClientRect();
 	}
@@ -27,9 +28,11 @@ function previousElement() {
 	Highlighter.erase();
 	Highlighter.previous()
 	let elemRect = Highlighter.element.getBoundingClientRect();
-	while(!((elemRect.width > 0) && (elemRect.height > 0))) {
+	let counterLoop = 0
+	while(!((elemRect.width > 0) && (elemRect.height > 0)) && (counterLoop < 100)) {
 		Highlighter.previous();
 		elemRect = Highlighter.element.getBoundingClientRect();
+		counterLoop += 1
 	}
 	Highlighter.underline();
 	document.getElementById("currentXpath").innerHTML = createXPathFromElement(Highlighter.element)
@@ -45,10 +48,10 @@ window.addEventListener('Highlighter:underlined', function (evt) {
 document.body.innerHTML += `
 <div id="mydiv">
   <div id="mydivheader">Click and drag here to move</div>
-  <button class="drf325-button" id="interactiveElementButton">Interactive</button>
-  <button class="drf325-button" id="nonInteractiveElementButton">Not Interactive</button>
-  <button class="drf325-button" id="skipButton">Skip</button>
-  <button class="drf325-button" id="backButton">Back</button>
+  <button class="drf325-button" id="interactiveElementButton">Interactive</button><br/>
+  <button class="drf325-button" id="nonInteractiveElementButton">Not Interactive</button><br/>
+  <button class="drf325-button" id="skipButton">Skip</button><br/>
+  <button class="drf325-button" id="backButton">Back</button><br/>
   <small id="currentXpathHolder">xpath: <span id="currentXpath"></span></small>
 </div>
 `;
@@ -93,6 +96,10 @@ addcss(`
 
   #currentXpathHolder {
 	  color: black;
+	  word-wrap: break-word;
+  }
+  #xpathText {
+	
   }
 `);
 
