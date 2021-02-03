@@ -3,6 +3,32 @@
   <button class="drf325-button" id="skipButton">Skip</button><br/>
   <button class="drf325-button" id="backButton">Back</button><br/> */
 
+  
+  let drf325_STORED_DATA = {
+	  sites: {
+
+	  }
+  }
+
+  chrome.storage.sync.get('drf325_data', function(data) {
+	if (typeof data["drf325_data"] !== 'undefined') {
+		// if already set it then nothing to do 
+		drf325_STORED_DATA = data["drf325_data"]
+		drf325_refreshSelectedElements()
+		console.log('not saved ' + JSON.stringify(drf325_STORED_DATA));
+	  } else {
+		// if not set then set it 
+		chrome.storage.sync.set({'drf325_data' : drf325_STORED_DATA}, function() {
+			console.log('saved ' + JSON.stringify(drf325_STORED_DATA));
+		});
+	  }
+  });
+  
+
+  if(!(window.location.href in drf325_STORED_DATA.sites)){
+	drf325_STORED_DATA.sites[window.location.href] = {}
+	drf325_saveData(drf325_STORED_DATA)
+  }
 let drf325_storedDataObj = []
 let drf325_selectedElements = {}
 document.body.innerHTML += `
@@ -19,13 +45,13 @@ window.theRoom.configure({
 	blockRedirection: true,
     click: function (element) {
 		let xPath = createXPathFromElement(element)
-		if(xPath in drf325_selectedElements) {
-			element.style.border = drf325_selectedElements[xPath].previousBorder;
-			delete drf325_selectedElements[xPath]; 
+		if(xPath in drf325_STORED_DATA.sites[window.location.href]) {
+			element.style.border = drf325_STORED_DATA.sites[window.location.href][xPath].previousBorder;
+			delete drf325_STORED_DATA.sites[window.location.href][xPath]; 
 			drf325_refreshSelectedElements();
 		} else {
 			drf325_storedDataObj.push(xPath);
-			drf325_selectedElements[xPath] = {
+			drf325_STORED_DATA.sites[window.location.href][xPath] = {
 				element: element,
 				previousBorder: element.style.border
 			}
@@ -108,11 +134,24 @@ addcss(`
 
 function drf325_refreshSelectedElements() {
 	
-	for(const xPath of Object.keys(drf325_selectedElements)) {
-		drf325_selectedElements[xPath]['element'].style.border = drf325_selectedElements[xPath].previousBorder;
+	for(const xPath of Object.keys(drf325_STORED_DATA.sites[window.location.href])) {
+		drf325_lookupElementByXPath(xPath).style.border = drf325_STORED_DATA.sites[window.location.href][xPath].previousBorder;
 	}
-	for(const xPath of Object.keys(drf325_selectedElements)) {
-		drf325_selectedElements[xPath]['element'].style.border = "thick solid green";
+	for(const xPath of Object.keys(drf325_STORED_DATA.sites[window.location.href])) {
+		drf325_lookupElementByXPath(xPath).style.border = "thick solid green";
 	}
+	drf325_saveData(drf325_STORED_DATA)
 
 }
+
+function drf325_saveData(STORED_DATA) {
+	chrome.storage.sync.set({'drf325_data' : STORED_DATA}, function() {
+		console.log('saved ' + JSON.stringify(drf325_STORED_DATA));
+	});
+}
+
+function drf325_lookupElementByXPath(path) { 
+    var evaluator = new XPathEvaluator(); 
+    var result = evaluator.evaluate(path, document.documentElement, null,XPathResult.FIRST_ORDERED_NODE_TYPE, null); 
+    return  result.singleNodeValue; 
+} 
