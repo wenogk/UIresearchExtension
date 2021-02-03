@@ -4,12 +4,12 @@
   <button class="drf325-button" id="backButton">Back</button><br/> */
 
 let drf325_storedDataObj = []
-let drf325_selectedElements = []
+let drf325_selectedElements = {}
 document.body.innerHTML += `
 <div id="mydiv">
   <div id="mydivheader">Click and drag here to move</div>
-  <p id="currentXpathHolder">hover xpath: <span id="currentHoverXpath"></span></p><br/>
-  <p id="currentXpathHolder">click xpath: <span id="currentXpath"></span></p>
+  <p id="currentXpathHolder"><b>Hover xpath:</b> <span id="currentHoverXpath"></span></p><br/>
+  <p id="currentXpathHolder"><b>Click xpath:</b> <span id="currentXpath"></span></p>
 </div>
 <div class="inspector-element"></div>
 `;
@@ -19,10 +19,21 @@ window.theRoom.configure({
 	blockRedirection: true,
     click: function (element) {
 		let xPath = createXPathFromElement(element)
-		drf325_storedDataObj.push(xPath);
-		drf325_selectedElements.push(element)
-		drf325_refreshSelectedElements();
-	  document.getElementById("currentXpath").innerText = String(drf325_storedDataObj)
+		if(xPath in drf325_selectedElements) {
+			element.style.border = drf325_selectedElements[xPath].previousBorder;
+			delete drf325_selectedElements[xPath]; 
+			drf325_refreshSelectedElements();
+		} else {
+			drf325_storedDataObj.push(xPath);
+			drf325_selectedElements[xPath] = {
+				element: element,
+				previousBorder: element.style.border
+			}
+			drf325_refreshSelectedElements();
+			
+			document.getElementById("currentXpath").innerText = xPath
+		}
+		
 	},
 	excludes: ["#mydiv"]
   })
@@ -96,9 +107,12 @@ addcss(`
 `);
 
 function drf325_refreshSelectedElements() {
-
-	drf325_selectedElements.forEach((e)=> {
-		e.style.border = "thick solid green";
-	})
+	
+	for(const xPath of Object.keys(drf325_selectedElements)) {
+		drf325_selectedElements[xPath]['element'].style.border = drf325_selectedElements[xPath].previousBorder;
+	}
+	for(const xPath of Object.keys(drf325_selectedElements)) {
+		drf325_selectedElements[xPath]['element'].style.border = "thick solid green";
+	}
 
 }
