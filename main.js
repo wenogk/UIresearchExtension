@@ -2,6 +2,9 @@
   <button class="drf325-button" id="nonInteractiveElementButton">Not Interactive</button><br/>
   <button class="drf325-button" id="skipButton">Skip</button><br/>
   <button class="drf325-button" id="backButton">Back</button><br/> */
+
+let drf325_storedDataObj = []
+let drf325_selectedElements = []
 document.body.innerHTML += `
 <div id="mydiv">
   <div id="mydivheader">Click and drag here to move</div>
@@ -15,7 +18,11 @@ window.theRoom.configure({
 	inspector: ".inspector-element",
 	blockRedirection: true,
     click: function (element) {
-      document.getElementById("currentXpath").innerText = createXPathFromElement(element)
+		let xPath = createXPathFromElement(element)
+		drf325_storedDataObj.push(xPath);
+		drf325_selectedElements.push(element)
+		drf325_refreshSelectedElements();
+	  document.getElementById("currentXpath").innerText = String(drf325_storedDataObj)
 	},
 	excludes: ["#mydiv"]
   })
@@ -88,9 +95,10 @@ addcss(`
   
 `);
 
-(function() {
-	
-	// just place a div at top right
-	
+function drf325_refreshSelectedElements() {
 
-})();
+	drf325_selectedElements.forEach((e)=> {
+		e.style.border = "thick solid green";
+	})
+
+}
