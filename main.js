@@ -12,20 +12,18 @@
 
 	let drf325_SELECT_MODE = false;
 
-chrome.storage.sync.get('drf325_data', function(data) {
+chrome.storage.local.get('drf325_data', function(data) {
   if (typeof data["drf325_data"] !== 'undefined') {
 	  // if already set up, then just retrieve it
 	  drf325_STORED_DATA = data["drf325_data"]
-	  console.log("TRYING 1!!" + JSON.stringify(drf325_STORED_DATA))
 	  drf325_refreshSelectedElements()
-	  console.log('already saved so retrieving: ' + JSON.stringify(drf325_STORED_DATA));
+	  console.log('already saved so retrieving: ' + JSON.stringify(drf325_STORED_DATA,null, 2));
 	} else {
 	  // if not set then set it - basically first time user used the extension
-	  chrome.storage.sync.set({'drf325_data' : drf325_STORED_DATA}, function() {
-		  console.log('initiated data storage: ' + JSON.stringify(drf325_STORED_DATA));
+	  chrome.storage.local.set({'drf325_data' : drf325_STORED_DATA}, function() {
+		  console.log('initiated data storage: ' + JSON.stringify(drf325_STORED_DATA,null, 2));
 	  });
 	}
-	console.log("TRYING 2!!")
 	initializeCurrentSiteStorageIfNotSet();
 
 });
@@ -35,23 +33,25 @@ chrome.storage.sync.get('drf325_data', function(data) {
 
 let drf325_storedDataObj = []
 let drf325_selectedElements = {}
-document.body.innerHTML += `
-<div id="mydiv">
-<div id="mydivheader">Click and drag here to move</div>
+var div = document.createElement('div');
+div.id = 'mydiv';
+div.innerHTML = `<div id="mydivheader">Click and drag here to move</div>
 <label class="drf325_switch" id ="drf325_switch">
 <input id="drf325_checkbox" type="checkbox">
 <span class="drf325_slider drf325_round"></span>
 </label>
 <p id="currentXpathHolder"><b>Hover xpath:</b> <span id="currentHoverXpath"></span></p><br/>
-<p id="currentXpathHolder"><b>Click xpath:</b> <span id="currentXpath"></span></p>
-</div>
-<div class="inspector-element"></div>
-`;
+<p id="currentXpathHolder"><b>Click xpath:</b> <span id="currentXpath"></span></p>`;
+document.body.appendChild(div);
+let div2 = document.createElement('div');
+div2.className = 'inspector-element';
+document.body.appendChild(div2);
 
 window.theRoom.configure({
   inspector: ".inspector-element",
   //blockRedirection: true,
   click: function (element) {
+	  
 	  if(drf325_SELECT_MODE) {
 		let xPath = createXPathFromElement(element)
 		if(xPath in drf325_STORED_DATA.sites[window.location.href]) {
@@ -86,7 +86,7 @@ window.theRoom.start()
 window.theRoom.on('mouseover', function (element) {
   document.getElementById("currentHoverXpath").innerText = createXPathFromElement(element)
   
-  console.log('the element is hovered', element)
+  //console.log('the element is hovered', element)
 })
 
 
@@ -250,6 +250,10 @@ drf325_checkbox.onclick = () => {
 	drf325_SELECT_MODE = drf325_checkbox.checked;
 };
 
+var intervalId = window.setInterval(function(){
+	/// call your function here
+	drf325_refreshSelectedElements();
+}, 5000);
 
 function drf325_onToggle() {
   // check if checkbox is checked
@@ -268,7 +272,7 @@ function initializeCurrentSiteStorageIfNotSet() {
 			
 		}
 		drf325_saveData(drf325_STORED_DATA)
-		console.log('new site - tried to add - ' + JSON.stringify(drf325_STORED_DATA));
+		console.log('new site - tried to add - ' + JSON.stringify(drf325_STORED_DATA, null, 2));
 	} else {
 		console.log("url already saved")
 	}
@@ -279,9 +283,15 @@ function drf325_refreshSelectedElements() {
 		return;
 	}
   for(const xPath of Object.keys(drf325_STORED_DATA.sites[window.location.href])) {
+	  if(drf325_lookupElementByXPath(xPath) == null) {
+		  continue;
+	  }
 	  drf325_lookupElementByXPath(xPath).style.border = drf325_STORED_DATA.sites[window.location.href][xPath].previousBorder;
   }
   for(const xPath of Object.keys(drf325_STORED_DATA.sites[window.location.href])) {
+	if(drf325_lookupElementByXPath(xPath) == null) {
+		continue;
+	}
 	  drf325_lookupElementByXPath(xPath).style.border = "thick solid green";
   }
   drf325_saveData(drf325_STORED_DATA)
@@ -289,8 +299,8 @@ function drf325_refreshSelectedElements() {
 }
 
 function drf325_saveData(STORED_DATA) {
-  chrome.storage.sync.set({'drf325_data' : STORED_DATA}, function() {
-	  console.log('saved ' + JSON.stringify(drf325_STORED_DATA));
+  chrome.storage.local.set({'drf325_data' : STORED_DATA}, function() {
+	  console.log('saved ' + JSON.stringify(drf325_STORED_DATA,null, 2));
   });
 }
 
