@@ -38,7 +38,7 @@ let drf325_selectedElements = {}
 document.body.innerHTML += `
 <div id="mydiv">
 <div id="mydivheader">Click and drag here to move</div>
-<label class="drf325_switch">
+<label class="drf325_switch" id ="drf325_switch">
 <input id="drf325_checkbox" type="checkbox">
 <span class="drf325_slider drf325_round"></span>
 </label>
@@ -68,6 +68,12 @@ window.theRoom.configure({
 			
 			document.getElementById("currentXpath").innerText = xPath
 		}
+	  } else {
+		document.getElementById("drf325_switch").classList.remove("blink");
+		setTimeout(function(){
+			document.getElementById("drf325_switch").classList.add("blink");
+		 },1);
+		
 	  }
   },
   excludes: ["#mydiv", "#mydivheader","#currentXpathHolder","#currentXpath","#currentHoverXpath","#drf325_checkbox",".drf325_slider",".drf325_switch"]
@@ -200,6 +206,42 @@ border-radius: 34px;
 .drf325_slider.drf325_round:before {
 border-radius: 50%;
 }
+
+@-webkit-keyframes blinker {
+	0% {
+	  opacity: 1.0;
+	}
+	50% {
+	  opacity: 0.0;
+	}
+	100% {
+	  opacity: 1.0;
+	}
+  }
+  @-moz-keyframes blinker {
+	0% {
+	  opacity: 1.0;
+	}
+	50% {
+	  opacity: 0.0;
+	}
+	100% {
+	  opacity: 1.0;
+	}
+  }
+  @keyframes glow {
+	from {
+	  box-shadow: 0 0 10px -10px #aef4af;
+	}
+	to {
+	  box-shadow: 0 0 10px 10px #aef4af;
+	}
+  }
+  .blink {
+	-webkit-animation: glow 1s 2;
+	-moz-animation: glow 1s 2;
+	animation: glow 1s 2;
+  }
 
 `);
 
