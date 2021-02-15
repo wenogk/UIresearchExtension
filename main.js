@@ -30,7 +30,7 @@ chrome.storage.local.get('drf325_data', function(data) {
 
 
 
-
+let drf325_totalSelectedListeners = 0;
 let drf325_storedDataObj = []
 let drf325_selectedElements = {}
 var div = document.createElement('div');
@@ -40,6 +40,7 @@ div.innerHTML = `<div id="mydivheader">Click and drag here to move</div>
 <input id="drf325_checkbox" type="checkbox">
 <span class="drf325_slider drf325_round"></span>
 </label>
+<h1 id="drf325_totalSelectedListeners"></h1>
 <p id="currentXpathHolder"><b>Hover xpath:</b> <span id="currentHoverXpath"></span></p><br/>
 <p id="currentXpathHolder"><b>Click xpath:</b> <span id="currentXpath"></span></p>`;
 document.body.appendChild(div);
@@ -55,6 +56,7 @@ window.theRoom.configure({
 	  if(drf325_SELECT_MODE) {
 		let xPath = createXPathFromElement(element)
 		if(xPath in drf325_STORED_DATA.sites[window.location.href]) {
+			
 			element.style.border = drf325_STORED_DATA.sites[window.location.href][xPath].previousBorder;
 			delete drf325_STORED_DATA.sites[window.location.href][xPath]; 
 			drf325_refreshSelectedElements();
@@ -277,7 +279,16 @@ function initializeCurrentSiteStorageIfNotSet() {
 		console.log("url already saved")
 	}
 }
-
+function drf325_refreshTotalSelectedListeners() {
+	if(drf325_STORED_DATA.sites[window.location.href] == null) {
+		drf325_totalSelectedListeners = 0;
+		
+	} else {
+		drf325_totalSelectedListeners = Object.keys(drf325_STORED_DATA.sites[window.location.href]).length;
+	}
+	
+	document.querySelector('#drf325_totalSelectedListeners').innerText = drf325_totalSelectedListeners;
+}
 function drf325_refreshSelectedElements() {
 	if(drf325_STORED_DATA.sites[window.location.href] == null) {
 		return;
@@ -288,14 +299,16 @@ function drf325_refreshSelectedElements() {
 	  }
 	  drf325_lookupElementByXPath(xPath).style.border = drf325_STORED_DATA.sites[window.location.href][xPath].previousBorder;
   }
+  
   for(const xPath of Object.keys(drf325_STORED_DATA.sites[window.location.href])) {
 	if(drf325_lookupElementByXPath(xPath) == null) {
 		continue;
 	}
 	  drf325_lookupElementByXPath(xPath).style.border = "thick solid green";
+	  
   }
-  drf325_saveData(drf325_STORED_DATA)
-
+  drf325_saveData(drf325_STORED_DATA);
+  drf325_refreshTotalSelectedListeners();
 }
 
 function drf325_saveData(STORED_DATA) {
