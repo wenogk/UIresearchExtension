@@ -8,6 +8,7 @@
 	sites: {
 
 	}
+
 	}
 
 	let drf325_SELECT_MODE = false;
@@ -35,14 +36,16 @@ let drf325_storedDataObj = []
 let drf325_selectedElements = {}
 var div = document.createElement('div');
 div.id = 'mydiv';
-div.innerHTML = `<div id="mydivheader">Click and drag here to move</div>
-<label class="drf325_switch" id ="drf325_switch">
-<input id="drf325_checkbox" type="checkbox">
+div.innerHTML = `<div id="mydivheader" class="drf325_ignoreSelect">Click and drag here to move</div>
+<label class="drf325_switch" id ="drf325_switch" class="drf325_ignoreSelect">
+<input id="drf325_checkbox" type="checkbox" class="drf325_ignoreSelect">
 <span class="drf325_slider drf325_round"></span>
 </label>
-<h1 id="drf325_totalSelectedListeners"></h1>
-<p id="currentXpathHolder"><b>Hover xpath:</b> <span id="currentHoverXpath"></span></p><br/>
-<p id="currentXpathHolder"><b>Click xpath:</b> <span id="currentXpath"></span></p>`;
+<h1 class="drf325_ignoreSelect"><span id="drf325_totalSelectedListeners" class="drf325_ignoreSelect"></span> total selected.</h1>
+<button class="drf325-button">Submit</button>
+`;
+//<p id="currentXpathHolder"><b>Hover xpath:</b> <span id="currentHoverXpath"></span></p><br/>
+//<p id="currentXpathHolder"><b>Click xpath:</b> <span id="currentXpath"></span></p>
 document.body.appendChild(div);
 let div2 = document.createElement('div');
 div2.className = 'inspector-element';
@@ -55,17 +58,25 @@ window.theRoom.configure({
 	  
 	  if(drf325_SELECT_MODE) {
 		let xPath = createXPathFromElement(element)
-		if(xPath in drf325_STORED_DATA.sites[window.location.href]) {
+		if(xPath in drf325_STORED_DATA.sites[window.location.href]['xPaths']) {
 			
-			element.style.border = drf325_STORED_DATA.sites[window.location.href][xPath].previousBorder;
-			delete drf325_STORED_DATA.sites[window.location.href][xPath]; 
+			element.style.border = drf325_STORED_DATA.sites[window.location.href]['xPaths'][xPath].previousBorder;
+			delete drf325_STORED_DATA.sites[window.location.href]['xPaths'][xPath]; 
 			drf325_refreshSelectedElements();
 		} else {
+			//if first then  add the timestamp
+			if(Object.keys(drf325_STORED_DATA.sites[window.location.href]['xPaths']).length == 0) {
+				let timeNow = Math.floor(Date.now() / 1000);
+				drf325_STORED_DATA.sites[window.location.href]['firstTimestamp'] = timeNow;
+			}
+
 			drf325_storedDataObj.push(xPath);
-			drf325_STORED_DATA.sites[window.location.href][xPath] = {
+			drf325_STORED_DATA.sites[window.location.href]['xPaths'][xPath] = {
 				element: element,
 				previousBorder: element.style.border
 			}
+
+			
 			drf325_refreshSelectedElements();
 			
 			document.getElementById("currentXpath").innerText = xPath
@@ -78,7 +89,7 @@ window.theRoom.configure({
 		
 	  }
   },
-  excludes: ["#mydiv", "#mydivheader","#currentXpathHolder","#currentXpath","#currentHoverXpath","#drf325_checkbox",".drf325_slider",".drf325_switch"]
+  excludes: ["#mydiv", "#mydivheader","#currentXpathHolder","#currentXpath","#currentHoverXpath","#drf325_checkbox",".drf325_slider",".drf325_switch",".drf325_ignoreSelect"]
 })
 
 // start inspection
@@ -86,7 +97,7 @@ window.theRoom.start()
 
 // dynamically bind event
 window.theRoom.on('mouseover', function (element) {
-  document.getElementById("currentHoverXpath").innerText = createXPathFromElement(element)
+  //document.getElementById("currentHoverXpath").innerText = createXPathFromElement(element)
   
   //console.log('the element is hovered', element)
 })
@@ -271,7 +282,9 @@ function drf325_onToggle() {
 function initializeCurrentSiteStorageIfNotSet() {
 	if(!(window.location.href in drf325_STORED_DATA.sites)){
 		drf325_STORED_DATA.sites[window.location.href] = {
-			
+			"xPaths" : {
+
+			}
 		}
 		drf325_saveData(drf325_STORED_DATA)
 		console.log('new site - tried to add - ' + JSON.stringify(drf325_STORED_DATA, null, 2));
@@ -280,27 +293,27 @@ function initializeCurrentSiteStorageIfNotSet() {
 	}
 }
 function drf325_refreshTotalSelectedListeners() {
-	if(drf325_STORED_DATA.sites[window.location.href] == null) {
+	if(drf325_STORED_DATA.sites[window.location.href] == null || drf325_STORED_DATA.sites[window.location.href].xPaths == null) {
 		drf325_totalSelectedListeners = 0;
 		
 	} else {
-		drf325_totalSelectedListeners = Object.keys(drf325_STORED_DATA.sites[window.location.href]).length;
+		drf325_totalSelectedListeners = Object.keys(drf325_STORED_DATA.sites[window.location.href].xPaths).length;
 	}
 	
 	document.querySelector('#drf325_totalSelectedListeners').innerText = drf325_totalSelectedListeners;
 }
 function drf325_refreshSelectedElements() {
-	if(drf325_STORED_DATA.sites[window.location.href] == null) {
+	if(drf325_STORED_DATA.sites[window.location.href] == null || drf325_STORED_DATA.sites[window.location.href].xPaths == null) {
 		return;
 	}
-  for(const xPath of Object.keys(drf325_STORED_DATA.sites[window.location.href])) {
+  for(const xPath of Object.keys(drf325_STORED_DATA.sites[window.location.href]['xPaths'])) {
 	  if(drf325_lookupElementByXPath(xPath) == null) {
 		  continue;
 	  }
-	  drf325_lookupElementByXPath(xPath).style.border = drf325_STORED_DATA.sites[window.location.href][xPath].previousBorder;
+	  drf325_lookupElementByXPath(xPath).style.border = drf325_STORED_DATA.sites[window.location.href]['xPaths'][xPath].previousBorder;
   }
   
-  for(const xPath of Object.keys(drf325_STORED_DATA.sites[window.location.href])) {
+  for(const xPath of Object.keys(drf325_STORED_DATA.sites[window.location.href]['xPaths'])) {
 	if(drf325_lookupElementByXPath(xPath) == null) {
 		continue;
 	}
